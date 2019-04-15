@@ -1,0 +1,271 @@
+//==============================================================================
+// Copyright (C) John-Philip Taylor
+// tyljoh010@myuct.ac.za
+//
+// This file is part of the EEE4084F Course
+//
+// This file is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>
+//
+// This is an adaptition of The "Hello World" example avaiable from
+// https://en.wikipedia.org/wiki/Message_Passing_Interface#Example_program
+//==============================================================================
+
+
+/** \mainpage Prac4 Main Page
+ *
+ * \section intro_sec Introduction
+ *
+ * The purpose of Prac4 is to learn some basics of MPI coding.
+ *
+ * Look under the Files tab above to see documentation for particular files
+ * in this project that have Doxygen comments.
+ */
+
+
+//---------- STUDENT NUMBERS --------------------------------------------------
+//
+//     
+//
+//-----------------------------------------------------------------------------
+
+/* Note that Doxygen comments are used in this file. */
+/** \file Prac4
+ *  Prac4 - MPI Main Module
+ *  The purpose of this prac is to get a basic introduction to using
+ *  the MPI libraries for prallel or cluster-based programming.
+ */
+
+// Includes needed for the program
+#include "Prac4.h"
+
+// Swap function for Partition()
+void Swap(int *xp, int *yp) {
+    int temp = *xp;
+    *xp = *yp;
+    *yp = temp;
+}
+
+// Partition function for QuickSort()
+int Partition (int arr[], int beginning, int ending) {
+    int pivot=arr[ending];    // pivot
+    int i=(beginning-1);  // index of smaller element
+    for (int j=beginning; j<=ending- 1; j++) {
+        // if current element is <= than pivot
+        if (arr[j]<=pivot) {
+            i++;    // increment index of smaller element
+            Swap(&arr[i], &arr[j]);
+        }
+    }
+    Swap(&arr[i+1], &arr[ending]);
+    return (i+1);
+}
+
+// QuickSort function
+void QuickSort(int arr[], int beginning, int ending) {
+    if (beginning<ending) {
+        int part=Partition(arr, beginning, ending);
+        QuickSort(arr, beginning, part-1);
+        QuickSort(arr, part+1, ending);
+    }
+}
+
+/** This is the master node function, describing the operations
+    that the master will be doing */
+void Master () {
+ //! <h3>Local vars</h3>
+ // The above outputs a heading to doxygen function entry
+ int  j;             //! j: Loop counter
+ //char buff[BUFSIZE]; //! buff: Buffer for transferring message data
+ MPI_Status stat;    //! stat: Status of the MPI application
+/// Read the input image
+ if(!Input.Read("Data/greatwall.jpg")){
+  printf("Cannot read image\n");
+  return;
+ }
+
+ /// Allocated RAM for the output image
+ if(!Output.Allocate(Input.Width, Input.Height, Input.Components)) return;
+
+ int rows = Input.Height/numprocs; //convenience-variable
+ int buffsize = Input.Width*Input.Components; // convenience-variable
+ printf("0: We have %d processors\n", numprocs); // print number of processors
+
+for(j = 1; j < numprocs; j++) { // for all processors
+    //sprintf(buff, "Hello %d! ", j);
+    MPI_Send(&rows, 1, MPI_INT, j, TAG, MPI_COMM_WORLD);
+    MPI_Send(&buffsize, 1, MPI_INT, j, TAG+1, MPI_COMM_WORLD);
+if (j<(numprocs-1)){//chris added this if
+    for(int i = -4; i < rows+4; i++) { // for all rows of data //added 4 here
+        printf("hello %i\n",i);
+        MPI_Send(&Input.Rows[j*rows + i][0], buffsize, MPI_CHAR, j, TAG+2, MPI_COMM_WORLD);
+    }
+}
+
+if (j==(numprocs-1)){//chris added this
+    for(int i = -4; i < rows; i++) { // for all rows of data //added 4 here
+        printf("hello %i\n",i);
+        MPI_Send(&Input.Rows[j*rows + i][0], buffsize, MPI_CHAR, j, TAG+2, MPI_COMM_WORLD);
+    }
+
+}
+
+    //MPI_Send(buff, buffsize, MPI_CHAR, j, TAG, MPI_COMM_WORLD);
+    ///MPI_Send(void* data, int count, MPI_Datatype datatype,int destination, int tag, MPI_Comm communicator)
+}
+ printf("data sent\n");
+
+ for(j = 1; j < numprocs; j++) {
+    unsigned char data[rows][buffsize];
+
+  // This is blocking: normally one would use MPI_Iprobe, with MPI_ANY_SOURCE,
+  // to check for messages, and only when there is a message, receive it
+  // with MPI_Recv.  This would let the master receive messages from any
+  // slave, instead of a specific one only.
+    for(int i = 0; i < rows; i++) {
+        MPI_Recv(&Output.Rows[j*rows + i][0], buffsize, MPI_CHAR, j, TAG+3, MPI_COMM_WORLD, &stat);
+  }
+ }
+int x, y;
+for(y=0; y<rows; y++){
+    for(x=0; x<buffsize; x++){
+    int arr[81]; int i=0;
+    for(int m=x-12; m<x+13; m+=3) {
+        for(int n=y-4; n<y+5; n++) {
+            if(m<0||n<0||m>buffsize-1||n>Input.Height-1) {
+                arr[i]=0;
+            }
+            else{
+                arr[i]=Input.Rows[n][m];
+            } 
+            i++;
+        }
+      }
+      QuickSort(arr, 0, 80);
+      Output.Rows[y][x]=arr[40];
+     }
+}
+ 
+ // Write the output image
+ if(!Output.Write("Data/Output.jpg")){
+  printf("Cannot write image\n");
+  return;
+ }
+ //! <h3>Output</h3> The file Output.jpg will be created on success to save
+ //! the processed output.
+}
+//------------------------------------------------------------------------------
+
+/** This is the Slave function, the workers of this MPI application. */
+void Slave(int ID){
+    char idstr[32];
+    //char buff [BUFSIZE];
+    int rows;
+    int buffsize;
+    MPI_Status stat;
+
+    MPI_Recv(&rows, 1, MPI_INT, 0, TAG, MPI_COMM_WORLD, &stat);
+    MPI_Recv(&buffsize, 1, MPI_INT, 0, TAG+1, MPI_COMM_WORLD, &stat);
+    unsigned char data[rows+8][buffsize];
+    unsigned char outarray[rows][buffsize];
+   printf("Number of rows: %i", rows);
+printf("ID: %i Num: ",ID, numprocs);//added
+if(ID<(numprocs-1)){
+    for(int i = 0; i < rows+8; i++) {//was4 
+        MPI_Recv(&data[i][0], buffsize, MPI_CHAR, 0, TAG+2, MPI_COMM_WORLD, &stat);
+    }
+}
+
+if(ID==(numprocs-1)){//added this and if above
+    for(int i = 0; i < rows+4; i++) {//was4 
+        MPI_Recv(&data[i][0], buffsize, MPI_CHAR, 0, TAG+2, MPI_COMM_WORLD, &stat);
+    }
+}
+
+
+    printf("data received by slave\n");
+
+    int x, y;
+
+//kind of works
+/*for(y=0; y<4; y++){ //here too
+	   // printf("num %i\n",y);//added this 
+        for(x=0; x<buffsize; x++){
+	int sizze = 81-(y-4)*9;
+        int arr[sizze]; int i=0;
+        for(int m=x-12; m<x+13; m+=3) {
+            for(int n=y; n<y+5; n++) {
+                if(m<0||n<0||m>buffsize-1||n>2560-1){
+                    arr[i]=0;
+                }
+                else {
+                    arr[i]=data[n][m];
+                }
+                i++;
+            }
+        }
+        QuickSort(arr, 0, sizze-1);
+        outarray[y][x]=arr[40];
+        }
+    } //here
+*/
+
+
+    for(y=4; y<rows+4; y++){
+        for(x=0; x<buffsize; x++){
+        int arr[81]; int i=0;
+        for(int m=x-12; m<x+13; m+=3) {
+            for(int n=y-4; n<y+5; n++) {
+                if(m<0||n<0||m>buffsize-1||n>2560-1){
+                    arr[i]=0;
+                }
+                else {
+                    arr[i]=data[n][m];
+                }
+                i++;
+            }
+        }
+        QuickSort(arr, 0, 80);
+        outarray[y-4][x]=arr[40];
+        }
+    }
+	
+    for(int i=0; i<rows; i++){
+	   //this print shows all the pixel values
+	    printf("num2 %i; values: %u %u %u \n",i,outarray[i][0],outarray[i][1],outarray[i][2]);
+        MPI_Send(&outarray[i][0], buffsize, MPI_CHAR, 0, TAG+3, MPI_COMM_WORLD);
+        }
+}
+//------------------------------------------------------------------------------
+
+/** This is the entry point to the program. */
+int main(int argc, char** argv){
+ int myid;
+ tic();
+ // MPI programs start with MPI_Init
+ MPI_Init(&argc, &argv);
+ // find out how big the world is
+ MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+ // and this processes' rank is
+ MPI_Comm_rank(MPI_COMM_WORLD, &myid);
+ // At this point, all programs are running equivalently, the rank
+ // distinguishes the roles of the programs, with
+ // rank 0 often used as the "master".
+ if(myid == 0) Master();
+ else          Slave (myid);
+ // MPI programs end with MPI_Finalize
+ MPI_Finalize();
+ printf("Time = %lg ms\n", (double)toc()/1e-3);
+ return 0;
+}
+//------------------------------------------------------------------------------
