@@ -1,8 +1,6 @@
 //==============================================================================
-// Copyright (C) John-Philip Taylor
-// tyljoh010@myuct.ac.za
 //
-// This file is part of the EEE4084F Course
+// This file is part of the EEE4120F Course
 //
 // This file is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -49,14 +47,14 @@
 // Includes needed for the program
 #include "Prac4.h"
 
-// Swap function for Partition()
+//! Pivot method used in the sort functions
 void Swap(int *xp, int *yp) {
     int temp = *xp;
     *xp = *yp;
     *yp = temp;
 }
 
-// Partition function for QuickSort()
+//! Partition function for QuickSort()
 int Partition (int arr[], int beginning, int ending) {
     int pivot=arr[ending];    // pivot
     int i=(beginning-1);  // index of smaller element
@@ -71,7 +69,7 @@ int Partition (int arr[], int beginning, int ending) {
     return (i+1);
 }
 
-// QuickSort function
+//! QuickSort function
 void QuickSort(int arr[], int beginning, int ending) {
     if (beginning<ending) {
         int part=Partition(arr, beginning, ending);
@@ -97,31 +95,30 @@ void Master () {
  /// Allocated RAM for the output image
  if(!Output.Allocate(Input.Width, Input.Height, Input.Components)) return;
 
+//! Gets the number of rows in the image
  int rows = Input.Height/numprocs; //convenience-variable
+//! Gets the width of the image
  int buffsize = Input.Width*Input.Components; // convenience-variable
  printf("0: We have %d processors\n", numprocs); // print number of processors
 
 for(j = 1; j < numprocs; j++) { // for all processors
-    //sprintf(buff, "Hello %d! ", j);
     MPI_Send(&rows, 1, MPI_INT, j, TAG, MPI_COMM_WORLD);
     MPI_Send(&buffsize, 1, MPI_INT, j, TAG+1, MPI_COMM_WORLD);
-if (j<(numprocs-1)){//chris added this if
-    for(int i = -4; i < rows+4; i++) { // for all rows of data //added 4 here
-        printf("hello %i\n",i);
+if (j<(numprocs-1)){
+    for(int i = -4; i < rows+4; i++) { 
+       
         MPI_Send(&Input.Rows[j*rows + i][0], buffsize, MPI_CHAR, j, TAG+2, MPI_COMM_WORLD);
     }
 }
 
-if (j==(numprocs-1)){//chris added this
-    for(int i = -4; i < rows; i++) { // for all rows of data //added 4 here
-        printf("hello %i\n",i);
+if (j==(numprocs-1)){
+    for(int i = -4; i < rows; i++) { 
+        
         MPI_Send(&Input.Rows[j*rows + i][0], buffsize, MPI_CHAR, j, TAG+2, MPI_COMM_WORLD);
     }
 
 }
 
-    //MPI_Send(buff, buffsize, MPI_CHAR, j, TAG, MPI_COMM_WORLD);
-    ///MPI_Send(void* data, int count, MPI_Datatype datatype,int destination, int tag, MPI_Comm communicator)
 }
  printf("data sent\n");
 
@@ -178,16 +175,16 @@ void Slave(int ID){
     MPI_Recv(&buffsize, 1, MPI_INT, 0, TAG+1, MPI_COMM_WORLD, &stat);
     unsigned char data[rows+8][buffsize];
     unsigned char outarray[rows][buffsize];
-   printf("Number of rows: %i", rows);
-printf("ID: %i Num: ",ID, numprocs);//added
+   printf("Number of rows: %i  ", rows);
+printf("ID: %i Num: ",ID, numprocs);
 if(ID<(numprocs-1)){
-    for(int i = 0; i < rows+8; i++) {//was4 
+    for(int i = 0; i < rows+8; i++) {
         MPI_Recv(&data[i][0], buffsize, MPI_CHAR, 0, TAG+2, MPI_COMM_WORLD, &stat);
     }
 }
 
-if(ID==(numprocs-1)){//added this and if above
-    for(int i = 0; i < rows+4; i++) {//was4 
+if(ID==(numprocs-1)){
+    for(int i = 0; i < rows+4; i++) {
         MPI_Recv(&data[i][0], buffsize, MPI_CHAR, 0, TAG+2, MPI_COMM_WORLD, &stat);
     }
 }
@@ -197,28 +194,6 @@ if(ID==(numprocs-1)){//added this and if above
 
     int x, y;
 
-//kind of works
-/*for(y=0; y<4; y++){ //here too
-	   // printf("num %i\n",y);//added this 
-        for(x=0; x<buffsize; x++){
-	int sizze = 81-(y-4)*9;
-        int arr[sizze]; int i=0;
-        for(int m=x-12; m<x+13; m+=3) {
-            for(int n=y; n<y+5; n++) {
-                if(m<0||n<0||m>buffsize-1||n>2560-1){
-                    arr[i]=0;
-                }
-                else {
-                    arr[i]=data[n][m];
-                }
-                i++;
-            }
-        }
-        QuickSort(arr, 0, sizze-1);
-        outarray[y][x]=arr[40];
-        }
-    } //here
-*/
 
 
     for(y=4; y<rows+4; y++){
@@ -242,7 +217,7 @@ if(ID==(numprocs-1)){//added this and if above
 	
     for(int i=0; i<rows; i++){
 	   //this print shows all the pixel values
-	    printf("num2 %i; values: %u %u %u \n",i,outarray[i][0],outarray[i][1],outarray[i][2]);
+	   // printf("num2 %i; values: %u %u %u \n",i,outarray[i][0],outarray[i][1],outarray[i][2]);
         MPI_Send(&outarray[i][0], buffsize, MPI_CHAR, 0, TAG+3, MPI_COMM_WORLD);
         }
 }
@@ -252,18 +227,18 @@ if(ID==(numprocs-1)){//added this and if above
 int main(int argc, char** argv){
  int myid;
  tic();
- // MPI programs start with MPI_Init
+ //! MPI programs start with MPI_Init
  MPI_Init(&argc, &argv);
- // find out how big the world is
+ //! find out how big the world is
  MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
- // and this processes' rank is
+ //! and this processes' rank is
  MPI_Comm_rank(MPI_COMM_WORLD, &myid);
  // At this point, all programs are running equivalently, the rank
  // distinguishes the roles of the programs, with
  // rank 0 often used as the "master".
  if(myid == 0) Master();
  else          Slave (myid);
- // MPI programs end with MPI_Finalize
+ //! MPI programs end with MPI_Finalize
  MPI_Finalize();
  printf("Time = %lg ms\n", (double)toc()/1e-3);
  return 0;

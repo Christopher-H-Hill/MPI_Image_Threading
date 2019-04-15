@@ -1,9 +1,15 @@
 \hypertarget{Prac4_8cpp}{}\section{Prac4.\+cpp File Reference}
 \label{Prac4_8cpp}\index{Prac4.\+cpp@{Prac4.\+cpp}}
-{\ttfamily \#include \char`\"{}Prac4.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}Prac4.\+h\char`\"{}}\newline
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
+void \hyperlink{Prac4_8cpp_a3730c73989316d050bf094d9dad631b7}{Swap} (int $\ast$xp, int $\ast$yp)
+\begin{DoxyCompactList}\small\item\em Pivot method used in the sort functions. \end{DoxyCompactList}\item 
+int \hyperlink{Prac4_8cpp_a16c832fe5bab69608bf7fdeef74a8b51}{Partition} (int arr\mbox{[}$\,$\mbox{]}, int beginning, int ending)
+\begin{DoxyCompactList}\small\item\em Partition function for \hyperlink{Prac4_8cpp_afc0067fda3795db69eb84f5b85ecf1b1}{Quick\+Sort()} \end{DoxyCompactList}\item 
+void \hyperlink{Prac4_8cpp_afc0067fda3795db69eb84f5b85ecf1b1}{Quick\+Sort} (int arr\mbox{[}$\,$\mbox{]}, int beginning, int ending)
+\begin{DoxyCompactList}\small\item\em Quick\+Sort function. \end{DoxyCompactList}\item 
 void \hyperlink{Prac4_8cpp_ab43971159bedc8576304b4ec1c4567dc}{Master} ()
 \item 
 void \hyperlink{Prac4_8cpp_a3cdafe41bdc98a25ea63a3697c1edc84}{Slave} (int ID)
@@ -13,36 +19,73 @@ int \hyperlink{Prac4_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}{main} (int argc, ch
 
 
 \subsection{Function Documentation}
+\mbox{\Hypertarget{Prac4_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}\label{Prac4_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}} 
 \index{Prac4.\+cpp@{Prac4.\+cpp}!main@{main}}
 \index{main@{main}!Prac4.\+cpp@{Prac4.\+cpp}}
-\subsubsection[{\texorpdfstring{main(int argc, char $\ast$$\ast$argv)}{main(int argc, char **argv)}}]{\setlength{\rightskip}{0pt plus 5cm}int main (
-\begin{DoxyParamCaption}
-\item[{int}]{argc, }
-\item[{char $\ast$$\ast$}]{argv}
-\end{DoxyParamCaption}
-)}\hypertarget{Prac4_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}{}\label{Prac4_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}
-This is the entry point to the program. \index{Prac4.\+cpp@{Prac4.\+cpp}!Master@{Master}}
+\subsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$$\ast$}]{argv }\end{DoxyParamCaption})}
+
+This is the entry point to the program. M\+PI programs start with M\+P\+I\+\_\+\+Init
+
+find out how big the world is
+
+and this processes\textquotesingle{} rank is
+
+M\+PI programs end with M\+P\+I\+\_\+\+Finalize \mbox{\Hypertarget{Prac4_8cpp_ab43971159bedc8576304b4ec1c4567dc}\label{Prac4_8cpp_ab43971159bedc8576304b4ec1c4567dc}} 
+\index{Prac4.\+cpp@{Prac4.\+cpp}!Master@{Master}}
 \index{Master@{Master}!Prac4.\+cpp@{Prac4.\+cpp}}
-\subsubsection[{\texorpdfstring{Master()}{Master()}}]{\setlength{\rightskip}{0pt plus 5cm}void Master (
-\begin{DoxyParamCaption}
-{}
-\end{DoxyParamCaption}
-)}\hypertarget{Prac4_8cpp_ab43971159bedc8576304b4ec1c4567dc}{}\label{Prac4_8cpp_ab43971159bedc8576304b4ec1c4567dc}
+\subsubsection{\texorpdfstring{Master()}{Master()}}
+{\footnotesize\ttfamily void Master (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
 This is the master node function, describing the operations that the master will be doing \paragraph*{Local vars}
 
 j\+: Loop counter
 
-buff\+: Buffer for transferring message data
-
 stat\+: Status of the M\+PI application
+
+Read the input image
+
+Allocated R\+AM for the output image
+
+Gets the number of rows in the image
+
+Gets the width of the image
 
 \paragraph*{Output}
 
-The file Output.\+jpg will be created on success to save the processed output. \index{Prac4.\+cpp@{Prac4.\+cpp}!Slave@{Slave}}
+The file Output.\+jpg will be created on success to save the processed output. \mbox{\Hypertarget{Prac4_8cpp_a16c832fe5bab69608bf7fdeef74a8b51}\label{Prac4_8cpp_a16c832fe5bab69608bf7fdeef74a8b51}} 
+\index{Prac4.\+cpp@{Prac4.\+cpp}!Partition@{Partition}}
+\index{Partition@{Partition}!Prac4.\+cpp@{Prac4.\+cpp}}
+\subsubsection{\texorpdfstring{Partition()}{Partition()}}
+{\footnotesize\ttfamily int Partition (\begin{DoxyParamCaption}\item[{int}]{arr\mbox{[}$\,$\mbox{]},  }\item[{int}]{beginning,  }\item[{int}]{ending }\end{DoxyParamCaption})}
+
+
+
+Partition function for \hyperlink{Prac4_8cpp_afc0067fda3795db69eb84f5b85ecf1b1}{Quick\+Sort()} 
+
+\mbox{\Hypertarget{Prac4_8cpp_afc0067fda3795db69eb84f5b85ecf1b1}\label{Prac4_8cpp_afc0067fda3795db69eb84f5b85ecf1b1}} 
+\index{Prac4.\+cpp@{Prac4.\+cpp}!Quick\+Sort@{Quick\+Sort}}
+\index{Quick\+Sort@{Quick\+Sort}!Prac4.\+cpp@{Prac4.\+cpp}}
+\subsubsection{\texorpdfstring{Quick\+Sort()}{QuickSort()}}
+{\footnotesize\ttfamily void Quick\+Sort (\begin{DoxyParamCaption}\item[{int}]{arr\mbox{[}$\,$\mbox{]},  }\item[{int}]{beginning,  }\item[{int}]{ending }\end{DoxyParamCaption})}
+
+
+
+Quick\+Sort function. 
+
+\mbox{\Hypertarget{Prac4_8cpp_a3cdafe41bdc98a25ea63a3697c1edc84}\label{Prac4_8cpp_a3cdafe41bdc98a25ea63a3697c1edc84}} 
+\index{Prac4.\+cpp@{Prac4.\+cpp}!Slave@{Slave}}
 \index{Slave@{Slave}!Prac4.\+cpp@{Prac4.\+cpp}}
-\subsubsection[{\texorpdfstring{Slave(int I\+D)}{Slave(int ID)}}]{\setlength{\rightskip}{0pt plus 5cm}void Slave (
-\begin{DoxyParamCaption}
-\item[{int}]{ID}
-\end{DoxyParamCaption}
-)}\hypertarget{Prac4_8cpp_a3cdafe41bdc98a25ea63a3697c1edc84}{}\label{Prac4_8cpp_a3cdafe41bdc98a25ea63a3697c1edc84}
-This is the Slave function, the workers of this M\+PI application. 
+\subsubsection{\texorpdfstring{Slave()}{Slave()}}
+{\footnotesize\ttfamily void Slave (\begin{DoxyParamCaption}\item[{int}]{ID }\end{DoxyParamCaption})}
+
+This is the Slave function, the workers of this M\+PI application. \mbox{\Hypertarget{Prac4_8cpp_a3730c73989316d050bf094d9dad631b7}\label{Prac4_8cpp_a3730c73989316d050bf094d9dad631b7}} 
+\index{Prac4.\+cpp@{Prac4.\+cpp}!Swap@{Swap}}
+\index{Swap@{Swap}!Prac4.\+cpp@{Prac4.\+cpp}}
+\subsubsection{\texorpdfstring{Swap()}{Swap()}}
+{\footnotesize\ttfamily void Swap (\begin{DoxyParamCaption}\item[{int $\ast$}]{xp,  }\item[{int $\ast$}]{yp }\end{DoxyParamCaption})}
+
+
+
+Pivot method used in the sort functions. 
+
